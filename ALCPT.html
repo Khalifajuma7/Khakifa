@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>ALCPT Simulator</title>
+<style>
+:root{--p:#1e3a8a;--p2:#0ea5e9;--ok:#16a34a;--okb:#e8f8ee;--no:#dc2626;--nob:#fdecec;--bg:#eef2f8;--tx:#0f172a;--mu:#64748b;--gold:#f59e0b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+.hero{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;padding:22px 18px 72px;border-radius:0 0 30px 30px}
+.in{max-width:640px;margin:auto}
+.wrap{max-width:640px;margin:-54px auto 0;padding:0 14px 30px}
+.card{background:#fff;border-radius:22px;padding:20px;box-shadow:0 10px 30px #0f172a14;margin-bottom:14px;animation:up .35s ease}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+h1{margin:0;font-size:24px}h2{margin:0 0 12px;font-size:19px}
+.sub{opacity:.85;margin-top:6px;font-size:14px}
+.btn{border:0;border-radius:14px;padding:14px 18px;font-size:16px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;box-shadow:0 6px 16px #1e3a8a40;transition:.15s;font-family:inherit}
+.btn:active{transform:scale(.97)}
+.btn.sec{background:#fff;color:var(--tx);box-shadow:0 2px 8px #0001;border:1px solid #e2e8f0}
+.btn:disabled{opacity:.35}
+.full{width:100%}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mode{border:2px solid #e2e8f0;border-radius:16px;padding:14px;text-align:center;cursor:pointer;font-weight:700}
+.mode small{display:block;font-weight:400;color:var(--mu);margin-top:4px;font-size:12px}
+.mode.on{border-color:var(--p2);background:#e0f2fe}
+.form{display:flex;align-items:center;gap:14px;border:2px solid #e2e8f0;border-radius:18px;padding:14px;margin:10px 0}
+.form .n{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:26px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--p),var(--p2));flex:none}
+.form .info{flex:1}.form .info b{display:block}
+.form .info small{color:var(--mu)}
+.form .best{color:var(--ok);font-size:13px;font-weight:700}
+.form .acts{display:flex;flex-direction:column;gap:6px}
+.form .acts .btn{padding:9px 12px;font-size:14px}
+.row{display:flex;justify-content:space-between;align-items:center;margin:12px 0;font-size:15px}
+select{font-size:15px;padding:8px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;font-family:inherit}
+.hud{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.pill{background:#ffffff26;padding:6px 11px;border-radius:30px;font-size:13px;font-weight:700}
+.pill.warn{background:#ef4444}
+.bar{height:6px;background:#ffffff40;border-radius:9px;overflow:hidden;margin-top:12px}
+.bar div{height:100%;background:#fff;width:0;transition:.4s}
+.sec{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{font-size:12px;font-weight:800;padding:5px 12px;border-radius:30px;background:#e0f2fe;color:#0369a1}
+.tag.r{background:#ede9fe;color:#6d28d9}
+.instr{font-size:13px;color:var(--mu);margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:12px}
+.play{display:flex;align-items:center;gap:14px;margin:18px 0 8px}
+.pb{width:70px;height:70px;border-radius:50%;border:0;font-size:28px;cursor:pointer;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;box-shadow:0 8px 20px #0ea5e955;flex:none}
+.pb:disabled{background:#cbd5e1;box-shadow:none;cursor:default}
+.pb.on{background:linear-gradient(135deg,var(--p),var(--p2));animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 14px #0ea5e922}}
+.pst{color:var(--mu);font-size:14px}
+.en{direction:ltr;text-align:left}
+.passage{background:#f8fafc;border-left:4px solid var(--p2);padding:14px;border-radius:12px;line-height:1.75;font-size:15px;margin-top:14px}
+.q{font-size:18px;font-weight:600;margin:16px 0 8px;line-height:1.55}
+.q u{text-decoration-thickness:2px;text-underline-offset:4px;color:var(--p)}
+.opt{display:flex;align-items:center;gap:12px;width:100%;padding:14px;margin:9px 0;border:2px solid #e2e8f0;border-radius:14px;background:#fff;font-size:16px;cursor:pointer;color:var(--tx);transition:.15s;text-align:left;font-family:inherit}
+.opt:active{transform:scale(.98)}
+.opt .l{flex:none;width:32px;height:32px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-weight:800;color:var(--mu)}
+.opt.sel{border-color:var(--p2);background:#e0f2fe}.opt.sel .l{background:var(--p2);color:#fff}
+.opt.ok{border-color:var(--ok);background:var(--okb)}.opt.ok .l{background:var(--ok);color:#fff}
+.opt.no{border-color:var(--no);background:var(--nob);animation:shake .35s}.opt.no .l{background:var(--no);color:#fff}
+.opt.dim{opacity:.45}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{border-radius:14px;padding:14px;margin-top:12px;font-size:15px;line-height:1.6;animation:up .3s}
+.fb.ok{background:var(--okb);color:#166534}.fb.no{background:var(--nob);color:#991b1b}
+.fb .tr{direction:ltr;text-align:left;margin-top:8px;color:var(--tx);font-style:italic;font-size:14px}
+.nav{display:flex;gap:10px}.nav .btn{flex:1}
+.ring{width:170px;height:170px;border-radius:50%;margin:10px auto;display:grid;place-items:center}
+.ring div{width:134px;height:134px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:40px;font-weight:800}
+.ring small{display:block;font-size:13px;color:var(--mu);font-weight:500;text-align:center}
+.brk{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.brk div{background:var(--bg);border-radius:12px;padding:10px;font-size:14px;display:flex;justify-content:space-between}
+.rev{border-top:1px solid #eef2f7;padding:12px 0;font-size:15px;line-height:1.6}
+.c-ok{color:var(--ok)}.c-no{color:var(--no)}
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vc{position:relative;border:2px solid #e2e8f0;border-radius:16px;padding:16px 10px;text-align:center;cursor:pointer;min-height:96px;background:#fff;transition:.2s}
+.vc .w{font-size:18px;font-weight:800;direction:ltr}
+.vc .ar{margin-top:8px;color:var(--p);font-weight:700;visibility:hidden}
+.vc.flip{border-color:var(--p2);background:#f0f9ff}.vc.flip .ar{visibility:visible}
+.vc .sp{position:absolute;top:6px;left:6px;border:0;background:var(--bg);border-radius:8px;width:30px;height:30px;cursor:pointer}
+.big{font-size:56px;text-align:center}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<div class="hero"><div class="in">
+  <h1>🎖️ ALCPT Simulator</h1>
+  <div class="sub" id="heroSub">محاكي الاختبار — 5 نماذج • 500 سؤال</div>
+  <div class="hud hidden" id="hud">
+    <span class="pill" id="hForm"></span>
+    <span class="pill" id="hPart"></span>
+    <span class="pill" id="hNum"></span>
+    <span class="pill" id="hTimeW">⏱ <span id="hTime"></span></span>
+    <span class="pill" id="hScore"></span>
+  </div>
+  <div class="bar hidden" id="barW"><div id="bar"></div></div>
+</div></div>
+
+<div class="wrap">
+  <!-- الرئيسية -->
+  <div id="homeScr">
+    <div class="card">
+      <h2>اختر الوضع</h2>
+      <div class="modes">
+        <div class="mode on" id="mTrain" onclick="setMode('train')">🎯 تدريب<small>تصحيح فوري بعد كل سؤال</small></div>
+        <div class="mode" id="mExam" onclick="setMode('exam')">📝 اختبار حقيقي<small>النتيجة في النهاية فقط</small></div>
+      </div>
+      <div class="row"><span>سرعة الصوت</span>
+        <select id="rate"><option value="0.75">بطيء</option><option value="0.9" selected>عادي</option><option value="1.05">سريع</option></select>
+      </div>
+      <div class="row"><span>تشغيل الصوت تلقائياً</span><input type="checkbox" id="auto" checked style="width:22px;height:22px"></div>
+    </div>
+    <div class="card"><h2>النماذج</h2><div id="forms"></div></div>
+    <div class="card" style="font-size:14px;color:var(--mu);line-height:1.7">
+      ⚠️ مثل الاختبار الحقيقي: كل تسجيل يُسمع <b>مرة واحدة فقط</b>. الجزء الأول (استماع) 20 دقيقة، والجزء الثاني (قراءة) 35 دقيقة، ولا يمكن الرجوع للاستماع بعد إنهائه.
+    </div>
+  </div>
+
+  <!-- الاختبار -->
+  <div id="testScr" class="hidden">
+    <div class="card" id="qbox"></div>
+    <div class="nav" id="navB">
+      <button class="btn sec" id="prev" onclick="go(-1)">→ السابق</button>
+      <button class="btn" id="next" onclick="go(1)">التالي ←</button>
+    </div>
+  </div>
+
+  <!-- بين الجزأين -->
+  <div id="midScr" class="hidden card" style="text-align:center">
+    <div class="big">🎧➜📖</div>
+    <h2>انتهى الجزء الأول: الاستماع</h2>
+    <p id="midInfo" style="color:var(--mu)"></p>
+    <p>الجزء الثاني: <b>القراءة</b> — 50 سؤال في <b>35 دقيقة</b><br>(مفردات • قواعد • فقرات)</p>
+    <button class="btn full" onclick="startPart2()">ابدأ الجزء الثاني</button>
+  </div>
+
+  <!-- الكلمات -->
+  <div id="vocScr" class="hidden"></div>
+
+  <!-- النتيجة -->
+  <div id="resScr" class="hidden"></div>
+</div>
+
+<script>
+/* الاستماع: [النوع, النص المسموع, الصحيحة, خطأ, خطأ, خطأ]   Q=أسئلة S=عبارات D=حوارات N=إعلانات وأخبار
+   القراءة: [النوع, السؤال, الصحيحة, خطأ, خطأ, خطأ, رمز الفقرة]   V=مفردات G=قواعد P=فقرات
+   *كلمة* = كلمة تحتها خط. الخيارات تُخلط تلقائياً */
+const FORMS=[
+{ // ================= النموذج 1 =================
+L:[
+["Q","What time does the class begin?","At eight o'clock.","In the classroom.","With the teacher.","For two hours."],
+["Q","Where did you park the jeep?","Behind the hangar.","Yesterday morning.","Because it was late.","With the sergeant."],
+["Q","How long have you been in the air force?","For six years.","Since tomorrow.","In Abu Dhabi.","By plane."],
+["Q","Who is your squadron commander?","Major Saeed.","On Tuesday.","In the office.","Very well."],
+["Q","Why didn't you come to the briefing?","I was on guard duty.","At ten o'clock.","In room five.","Yes, I did."],
+["Q","How much does this radio cost?","Three hundred dirhams.","It's very loud.","From Japan.","Two kilos."],
+["Q","Which runway is the plane using?","Runway two-seven.","The pilot.","At noon.","Very fast."],
+["Q","How often do you go to the gym?","Three times a week.","For an hour.","With my friend.","Near the base."],
+["Q","Whose helmet is this?","It's Ahmed's.","It's blue.","It's on the table.","It's new."],
+["Q","When will the new recruits arrive?","Next Sunday.","By bus.","Forty of them.","From Al Ain."],
+["Q","What's the matter with your hand?","I cut it on a knife.","It's my right hand.","I wash it.","Yes, it is."],
+["Q","How far is the hospital from here?","About two kilometers.","About two hours ago.","It's very big.","The doctor is there."],
+["Q","Can you help me carry these boxes?","Sure, where do they go?","They're made of wood.","Boxes are cheap.","I carried a box."],
+["Q","Did you finish the maintenance report?","Not yet. I'll finish it tonight.","The mechanic reports.","It's on page four.","Yes, I'm reporting."],
+["Q","What kind of aircraft do you fly?","Transport planes.","Very high.","Every morning.","In the sky."],
+["S","The meeting was postponed until Thursday.","The meeting will be held later, on Thursday.","The meeting was last Thursday.","The meeting was cancelled.","The meeting is earlier than planned."],
+["S","Khalid is taller than his brother.","His brother is shorter than Khalid.","Khalid is shorter than his brother.","They are the same height.","Khalid's brother is very tall."],
+["S","I didn't have enough money to buy the car.","I couldn't afford the car.","I bought the car.","The car was free.","I had too much money."],
+["S","The pilot had to make an emergency landing.","The pilot landed because of a problem.","The pilot landed normally.","The pilot didn't land.","The pilot took off."],
+["S","Ali hardly ever misses a class.","Ali almost always attends class.","Ali often misses class.","Ali never attends class.","Ali is a teacher."],
+["S","The store is closed on Fridays.","You can't shop there on Friday.","The store opens only on Friday.","The store closes early on Friday.","The store is new."],
+["S","He was too tired to finish the run.","He stopped running because he was tired.","He finished the run easily.","He wasn't tired at all.","He ran twice."],
+["S","The fuel tank is almost empty.","There's very little fuel left.","The tank is full.","There is no tank.","The fuel is expensive."],
+["S","Neither of the mechanics could fix the engine.","Both mechanics failed to repair it.","One mechanic fixed the engine.","Both mechanics fixed it.","The engine was not broken."],
+["S","You must wear a seat belt at all times.","Seat belts are always required.","Seat belts are optional.","Wear the belt only at night.","Seat belts are not allowed."],
+["S","The training was more difficult than we expected.","We thought the training would be easier.","The training was easy.","The training was as hard as we expected.","There was no training."],
+["S","My watch stopped, so I was late.","I was late because of my watch.","I was early.","I bought a new watch.","My watch was fast."],
+["S","The soldiers have already eaten.","The soldiers ate earlier.","The soldiers are eating now.","The soldiers will eat soon.","The soldiers are hungry."],
+["S","Smoking is not permitted in the hangar.","You can't smoke in the hangar.","You may smoke in the hangar.","Smoking is required.","The hangar is on fire."],
+["S","Let's take a taxi instead of walking.","The speaker prefers a taxi to walking.","The speaker wants to walk.","The speaker has a car.","The speaker is a taxi driver."],
+["D","Man: Are you going to the cafeteria? Woman: Yes, do you want anything? Man: Just a coffee, please. Question: What does the man want?","Coffee","Tea","A sandwich","Nothing"],
+["D","Woman: Is the colonel in his office? Man: No, he left for the airport an hour ago. Question: Where is the colonel going?","To the airport","To his office","To his home","To the hospital"],
+["D","Man: How was your vacation? Woman: Great, but it was too short. Question: What does the woman say about her vacation?","It wasn't long enough","It was boring","It was too long","She didn't take one"],
+["D","Woman: Did you lock the hangar? Man: Oh no, I forgot! Question: What did the man forget?","To lock the hangar","His keys","To open the hangar","The woman's name"],
+["D","Man: The bus is late again. Woman: Let's walk; it's only ten minutes. Question: What does the woman suggest?","Walking","Waiting","Taking a taxi","Going home"],
+["D","Woman: How many students passed the test? Man: All of them except two. Question: How many students failed?","Two","None","All","Twelve"],
+["D","Man: Can I see the doctor now? Woman: He's with a patient. Please wait a few minutes. Question: Where are the speakers?","At a clinic","At a bank","At a restaurant","At an airport"],
+["D","Woman: I need to send this package to Dubai. Man: Regular or express? Question: Where are the speakers?","At a post office","At a hotel","At a gas station","At a school"],
+["D","Man: Is it going to be hot tomorrow? Woman: Yes, around forty-five degrees. Question: What are they talking about?","The weather","A test","A trip","A meal"],
+["D","Woman: Why is your uniform wet? Man: I got caught in the rain. Question: Why is the man's uniform wet?","It rained on him","He washed it","He fell in the pool","He spilled water"],
+["D","Man: Did you get the new schedule? Woman: Yes, our flight is now at six instead of four. Question: What happened to the flight?","It was moved later","It was moved earlier","It was cancelled","It stayed at four"],
+["D","Woman: Do you want to play football after work? Man: I'd like to, but I hurt my knee. Question: Why can't the man play?","His knee is injured","He has to work","He doesn't like football","He is tired"],
+["N","Attention all personnel. Due to the sandstorm, all training flights scheduled for this afternoon are cancelled. Ground classes will continue as normal. Question: Why were the flights cancelled?","Because of a sandstorm","Because of rain","Because of a holiday","Because of a broken plane"],
+["N","Question: What will happen to ground classes?","They will continue","They are cancelled","They will start later","They will move outside"],
+["N","Passengers on flight two-one-five to Muscat, please go to gate twelve. The flight will board in fifteen minutes. Question: Where is the flight going?","Muscat","Dubai","Cairo","Doha"],
+["N","Question: When will boarding begin?","In fifteen minutes","In fifty minutes","In five minutes","In two hours"],
+["N","In local news, a new hospital opened yesterday in Al Ain. The hospital has three hundred beds and will serve more than half a million people. Question: Where did the hospital open?","In Al Ain","In Dubai","In Abu Dhabi","In Sharjah"],
+["N","Question: How many beds does the hospital have?","Three hundred","Thirty","Three thousand","Half a million"],
+["N","The weather service says temperatures will drop by ten degrees this weekend. Strong winds are also expected along the coast. Question: What will happen to temperatures?","They will go down","They will go up","They will stay the same","They will reach fifty degrees"],
+["N","Question: Where are strong winds expected?","Along the coast","In the mountains","In the desert","In the city center"]
+],
+P:{
+A:"Each summer, temperatures in the UAE often rise above 45 degrees Celsius. Working outside in this heat can be dangerous. Heat stroke happens when the body cannot cool itself. Workers are advised to drink water often, rest in the shade, and avoid hard work between noon and three o'clock.",
+B:"Sergeant Hamad has been a military driver for eight years. He drives heavy trucks that carry fuel and supplies to bases across the country. Before each trip, he checks the brakes, lights, and tires. He has never had an accident.",
+C:"The first Emirati astronaut, Hazzaa Al Mansoori, traveled to the International Space Station in 2019. He spent eight days in space and carried out scientific experiments. His mission made him a national hero."},
+R:[
+["V","The officer was *furious* when he saw the damage.","very angry","very happy","very tired","very calm"],
+["V","Please *verify* the numbers before you send the report.","check","delete","copy","forget"],
+["V","The road was *blocked* by a fallen tree.","closed","repaired","widened","painted"],
+["V","He *rarely* eats breakfast.","not often","always","quickly","usually"],
+["V","The mission was *successful*.","achieved its goal","dangerous","long","secret"],
+["V","The pilot *spotted* a ship below.","saw","hit","called","followed"],
+["V","The new rule takes effect *immediately*.","right now","next year","slowly","never"],
+["V","The soldiers *rested* under the trees.","relaxed","fought","ran","trained"],
+["V","The *chief* reason for the delay was the weather.","main","small","only","strange"],
+["V","He gave a *brief* report.","short","long","boring","written"],
+["V","The box is *fragile*; handle it with care.","easily broken","very heavy","empty","expensive"],
+["V","We must *obey* the rules.","follow","change","break","write"],
+["V","The equipment is *obsolete*.","out of date","brand new","very costly","lost"],
+["V","She *declined* the invitation.","refused","accepted","sent","wrote"],
+["V","The engine is making an *odd* noise.","strange","loud","quiet","normal"],
+["V","The village is in a *remote* area.","far away","crowded","modern","dangerous"],
+["V","The medic *treated* the injured soldier.","gave medical care to","carried","questioned","ignored"],
+["V","The meeting will *resume* after lunch.","continue again","end","be cancelled","begin for the first time"],
+["V","The results were *accurate*.","correct","late","wrong","unclear"],
+["V","He was *eager* to start flight training.","very willing","afraid","unable","too late"],
+["G","If I ___ more time, I would study harder.","had","have","will have","having"],
+["G","The aircraft ___ every morning before the first flight.","is inspected","inspects","inspecting","inspect"],
+["G","He has worked here ___ ten years.","for","since","ago","during"],
+["G","I'm not used to ___ so early.","getting up","get up","got up","gets up"],
+["G","This is the ___ test I have ever taken.","hardest","harder","hard","most hard"],
+["G","She asked me ___ I was ready.","if","that","what","which"],
+["G","The soldiers ___ when the alarm sounded.","were sleeping","sleep","are sleeping","have slept"],
+["G","You ___ leave your post without permission.","must not","don't have to","needn't","may"],
+["G","There aren't ___ chairs for everyone.","enough","too","very","much"],
+["G","He made the students ___ the lesson again.","read","to read","reading","reads"],
+["G","The man ___ son is a pilot lives next door.","whose","who","which","whom"],
+["G","By the time we arrived, the plane ___.","had left","leaves","has left","was leave"],
+["G","I'll call you when I ___ home.","get","will get","got","getting"],
+["G","Neither the captain ___ the sergeant was there.","nor","or","and","but"],
+["G","We look forward to ___ you.","seeing","see","saw","be seen"],
+["G","He drives ___ than his brother.","more carefully","carefuller","most carefully","careful"],
+["G","I wish I ___ speak French.","could","can","will","am"],
+["G","The report must ___ by Friday.","be finished","finish","finishing","finished"],
+["G","How ___ water do we have left?","much","many","few","lot"],
+["G","It's late, ___ we should go home.","so","but","because","although"],
+["P","What happens during heat stroke?","The body cannot cool down","The body gets too cold","Workers drink too much","The sun goes down","A"],
+["P","When should hard work be avoided?","Between noon and three","In the early morning","After sunset","All day in winter","A"],
+["P","Which advice is NOT given?","Wear dark clothes","Drink water often","Rest in the shade","Avoid hard work at noon","A"],
+["P","The passage is mainly about ___.","the danger of working in heat","summer holidays","how to cool a car","weather forecasts","A"],
+["P","What does Hamad carry?","Fuel and supplies","Passengers","Mail","Animals","B"],
+["P","What does he check before each trip?","Brakes, lights, and tires","Only the fuel","The radio","The seats","B"],
+["P","What can we say about Hamad?","He is a safe driver","He is a new driver","He has had many accidents","He drives small cars","B"],
+["P","When did he travel to space?","In 2019","In 2009","In 2021","In 1919","C"],
+["P","How long did he stay in space?","Eight days","Eight weeks","Eight months","Eighteen days","C"],
+["P","The word 'hero' in the passage refers to someone who is ___.","admired by people","unknown","afraid","a scientist only","C"]
+],
+W:[["furious","غاضب جداً"],["verify","يتحقق من"],["blocked","مسدود / مغلق"],["rarely","نادراً"],["successful","ناجح"],["spot","يلاحظ / يرصد"],["immediately","فوراً"],["chief","رئيسي"],["brief","موجز / قصير"],["fragile","سهل الكسر"],["obey","يطيع"],["obsolete","قديم / لم يعد يُستخدم"],["decline","يرفض"],["odd","غريب"],["remote","بعيد / نائي"],["treat","يعالج"],["resume","يستأنف"],["accurate","دقيق"],["eager","متحمس"],["postpone","يؤجل"],["emergency","طوارئ"],["permitted","مسموح"],["hangar","حظيرة الطائرات"],["runway","مدرج الطائرات"],["briefing","إيجاز / اجتماع تعليمات"]]
+},
+{ // ================= النموذج 2 =================
+L:[
+["Q","When does your shift end?","At midnight.","At the gate.","With my partner.","It's a hard job."],
+["Q","Where can I find the supply room?","At the end of the hall.","Tomorrow at nine.","Supplies are cheap.","The sergeant needs them."],
+["Q","How many people are in your unit?","About forty.","About forty minutes.","In the north.","They're very good."],
+["Q","What did you have for lunch?","Rice and chicken.","At one o'clock.","In the cafeteria.","With my friends."],
+["Q","Who fixed the generator?","The electrician did.","It was broken.","Last night.","With a wrench."],
+["Q","Why are you wearing a jacket?","Because it's cold outside.","It's a green jacket.","I bought it in Dubai.","Yes, I am."],
+["Q","Which of these maps is newer?","The one on the left.","Maps are useful.","It's a map of Oman.","I'll draw one."],
+["Q","How long does the flight take?","About three hours.","About three hundred miles.","At three o'clock.","Three passengers."],
+["Q","Would you like some tea?","Yes, please. No sugar.","Tea is from India.","I drank it tomorrow.","It's a teacup."],
+["Q","Have you ever flown a helicopter?","No, never.","Yes, tomorrow.","It's very loud.","From the base."],
+["Q","Where were you born?","In Fujairah.","In 1998.","At night.","My mother."],
+["Q","What's the weather like today?","Hot and sunny.","I like weather.","Today is Monday.","It's ten o'clock."],
+["Q","How do you get to work?","I drive.","At seven.","I work hard.","It's my job."],
+["Q","Who's in charge of the night shift?","Lieutenant Rashid.","From ten to six.","It's quiet.","Every night."],
+["Q","Could you repeat the last number?","Sure. It was forty-seven.","It's my number.","I don't count.","It's the last one."],
+["S","The plane took off on time.","The plane left as scheduled.","The plane was late.","The plane didn't leave.","The plane landed early."],
+["S","Saeed has never been to London.","Saeed has not visited London.","Saeed lives in London.","Saeed went to London once.","Saeed will go to London soon."],
+["S","The exam was easier than last year's.","Last year's exam was harder.","This year's exam was harder.","Both exams were hard.","There was no exam last year."],
+["S","I used to smoke, but I quit.","I don't smoke anymore.","I still smoke.","I never smoked.","I started smoking."],
+["S","The truck needs to be repaired.","Something is wrong with the truck.","The truck is new.","The truck was sold.","The truck is fast."],
+["S","We ran out of paper.","There is no paper left.","We have a lot of paper.","We bought paper.","The paper is wet."],
+["S","He was promoted to captain last month.","He became a captain a month ago.","He will become captain next month.","He is no longer a captain.","He is a lieutenant now."],
+["S","The class has been moved to room twelve.","The class is now in room twelve.","The class was in room twelve before.","Room twelve is closed.","There are twelve classes."],
+["S","Few soldiers passed the swimming test.","Most soldiers failed the swimming test.","Most soldiers passed.","All soldiers passed.","No one took the test."],
+["S","You don't have to wear your uniform today.","The uniform is not required today.","You must wear your uniform.","Uniforms are not allowed.","Wear it tomorrow."],
+["S","The colonel will arrive unless the flight is cancelled.","If the flight isn't cancelled, he'll come.","He won't come at all.","He came yesterday.","The flight was cancelled."],
+["S","The water in the tank is not safe to drink.","Don't drink the tank water.","The tank water is clean.","There is no water.","Drink only tank water."],
+["S","Mohammed is the only one who knows the code.","Nobody else knows the code.","Everyone knows the code.","Mohammed forgot the code.","There is no code."],
+["S","The radio stopped working after I dropped it.","Dropping the radio broke it.","The radio works well.","I bought a radio.","I dropped the phone."],
+["S","The briefing will start as soon as everyone arrives.","The briefing begins when all are present.","The briefing has started.","The briefing is cancelled.","Only some people will come."],
+["D","Woman: Is this seat taken? Man: No, go ahead. Question: What does the man mean?","She can sit there","The seat is taken","She should leave","He is leaving"],
+["D","Man: What time is the parade? Woman: It was at nine, but they changed it to ten. Question: When is the parade?","At ten","At nine","At eleven","It's cancelled"],
+["D","Woman: Can you lend me fifty dirhams? Man: I only have twenty. Question: How much money does the man have?","Twenty dirhams","Fifty dirhams","Seventy dirhams","Thirty dirhams"],
+["D","Man: I'd like to check in for my flight. Woman: May I see your passport, please? Question: Where are the speakers?","At an airport","At a bank","At a hospital","At a school"],
+["D","Woman: You look tired. Man: I worked the night shift. Question: Why is the man tired?","He worked at night","He exercised","He was sick","He travelled"],
+["D","Man: Do you want the red pen or the black one? Woman: The black one, please. Question: Which pen does the woman want?","The black one","The red one","Both","Neither"],
+["D","Woman: How was the test? Man: I think I did well, but the listening part was hard. Question: Which part was hard?","Listening","Reading","Grammar","Writing"],
+["D","Man: Should I turn left here? Woman: No, go straight and turn at the next light. Question: What should the man do?","Go straight","Turn left now","Turn right now","Stop the car"],
+["D","Woman: Is Ahmed still in the hospital? Man: No, he went home yesterday. Question: Where is Ahmed now?","At home","In the hospital","At work","On a trip"],
+["D","Man: I can't find my ID card. Woman: Did you look in your car? Question: What is the man's problem?","He lost his ID","His car broke","He is late","He lost his keys"],
+["D","Woman: How much is a ticket to Cairo? Man: Twelve hundred dirhams, one way. Question: What is the price?","1,200 dirhams","120 dirhams","2,100 dirhams","1,000 dirhams"],
+["D","Man: Let's meet at the gate at seven. Woman: Make it seven thirty; I have a meeting. Question: When will they meet?","At 7:30","At 7:00","At 3:30","At 7:13"],
+["N","Attention please. The base swimming pool will be closed for cleaning from Sunday to Tuesday. It will reopen on Wednesday morning at six. Question: Why will the pool be closed?","For cleaning","For a competition","For roof repairs","For a holiday"],
+["N","Question: When will the pool reopen?","Wednesday at six","Sunday at six","Tuesday at noon","Thursday morning"],
+["N","All students in level three, please report to the language lab after lunch for your listening test. Bring two pencils and your ID card. Question: Where should the students go?","To the language lab","To the cafeteria","To the gym","To the library"],
+["N","Question: What should the students bring?","Pencils and an ID card","A dictionary","A laptop","Their books"],
+["N","A small fishing boat was rescued off the coast of Fujairah early this morning. The four men on board were tired but in good health. Question: What happened this morning?","A boat was rescued","A boat sank","A storm hit the city","A plane landed"],
+["N","Question: How were the men?","Tired but healthy","Badly injured","Missing","Very sick"],
+["N","The ministry announced that the new highway between Dubai and Abu Dhabi will open next month. It will reduce travel time by about twenty minutes. Question: When will the highway open?","Next month","Next week","Next year","Today"],
+["N","Question: How much time will the highway save?","About twenty minutes","About two hours","About twelve minutes","About an hour"]
+],
+P:{
+A:"Pearl diving was once the main source of income for people living on the Gulf coast. Divers stayed at sea for up to four months in summer. They dived without modern equipment, holding their breath for over a minute. When cultured pearls from Japan appeared in the 1930s, the industry declined.",
+B:"Every soldier must pass a physical fitness test twice a year. The test includes push-ups, sit-ups, and a three-kilometer run. Soldiers who fail have one month to train before taking the test again.",
+C:"The Sheikh Zayed Grand Mosque in Abu Dhabi is one of the largest mosques in the world. It can hold more than forty thousand worshippers. Its main carpet is among the largest hand-made carpets ever produced."},
+R:[
+["V","The soldier was *exhausted* after the march.","very tired","very happy","very hungry","very angry"],
+["V","The commander *approved* the plan.","accepted","refused","wrote","forgot"],
+["V","The doctor told him to *avoid* sugar.","stay away from","eat more","buy","cook"],
+["V","The task is *simple*.","easy","difficult","long","boring"],
+["V","We need to *purchase* new tires.","buy","sell","fix","check"],
+["V","The *vehicle* was parked outside.","car","plane","boat","building"],
+["V","He *seldom* complains.","rarely","often","always","loudly"],
+["V","The crowd was *enormous*.","very large","very small","noisy","angry"],
+["V","Please *notify* the duty officer.","inform","follow","find","replace"],
+["V","The fire *spread* quickly.","moved to a larger area","stopped","started","got smaller"],
+["V","The instructions were *clear*.","easy to understand","confusing","short","written"],
+["V","The aircraft is *capable* of flying at night.","able","afraid","allowed","unable"],
+["V","The situation is *urgent*.","needs immediate action","not important","funny","finished"],
+["V","They *constructed* a new hangar.","built","destroyed","painted","sold"],
+["V","He *recovered* quickly from the flu.","got well","got sick","got worse","travelled"],
+["V","Keep the *entrance* clear.","way in","way out","roof","floor"],
+["V","The *majority* of students passed.","most","few","none","half"],
+["V","He spoke in a *calm* voice.","quiet and relaxed","angry","loud","nervous"],
+["V","The pilot had to *abort* the takeoff.","stop","continue","repeat","speed up"],
+["V","This is a *temporary* office.","not permanent","very old","large","private"],
+["G","She ___ to the base every day by car.","goes","go","going","gone"],
+["G","Look! The plane ___ now.","is landing","lands","landed","has land"],
+["G","I ___ him since we were children.","have known","know","knew","am knowing"],
+["G","If it rains tomorrow, the parade ___ cancelled.","will be","would be","was","is being"],
+["G","He is the ___ soldier in the unit.","strongest","stronger","strong","most strong"],
+["G","The letter ___ yesterday.","was sent","sent","is sending","has send"],
+["G","Do you know where ___?","the colonel is","is the colonel","the colonel does","does the colonel"],
+["G","There is ___ milk in the fridge.","a little","a few","many","few"],
+["G","I stopped ___ two years ago.","smoking","smoke","to smoking","smoked"],
+["G","He's a pilot, ___ he?","isn't","is","doesn't","wasn't"],
+["G","The book ___ I bought is about aircraft.","that","who","whose","where"],
+["G","We arrived ___ the airport at noon.","at","on","to","into"],
+["G","She speaks English ___ than her brother.","better","good","best","more good"],
+["G","You ___ better see a doctor.","had","have","would","should"],
+["G","He told me ___ late again.","not to be","don't be","not be","to not being"],
+["G","I was born ___ 2001.","in","on","at","by"],
+["G","They have ___ finished the job.","already","yet","ever","since"],
+["G","The coffee was ___ hot that I couldn't drink it.","so","too","such","very"],
+["G","Each of the boxes ___ a number.","has","have","having","are having"],
+["G","Although he was sick, he ___ to work.","went","didn't go","goes not","going"],
+["P","What was the main source of income on the coast?","Pearl diving","Farming","Oil","Trade with India","A"],
+["P","How long did divers stay at sea?","Up to four months","Four days","One year","One week","A"],
+["P","Why did the pearl industry decline?","Cultured pearls appeared","Divers got sick","The sea became dirty","The divers moved away","A"],
+["P","The word 'declined' means ___.","became weaker","grew","started","moved","A"],
+["P","How often is the fitness test given?","Twice a year","Once a year","Every month","Every week","B"],
+["P","Which is NOT part of the test?","Swimming","Push-ups","Sit-ups","Running","B"],
+["P","What happens if a soldier fails?","He trains and takes it again","He leaves the army","He is promoted","Nothing happens","B"],
+["P","Where is the mosque?","Abu Dhabi","Dubai","Al Ain","Sharjah","C"],
+["P","How many worshippers can it hold?","More than 40,000","4,000","Exactly 14,000","400","C"],
+["P","What is special about the carpet?","It is very large and hand-made","It is very old","It is made by machine","It is very small","C"]
+],
+W:[["exhausted","منهك جداً"],["approve","يوافق على"],["avoid","يتجنب"],["purchase","يشتري"],["vehicle","مركبة"],["seldom","نادراً"],["enormous","ضخم"],["notify","يُبلغ"],["spread","ينتشر"],["capable","قادر"],["urgent","عاجل"],["construct","يبني"],["recover","يتعافى"],["entrance","مدخل"],["majority","الأغلبية"],["calm","هادئ"],["abort","يوقف / يلغي"],["temporary","مؤقت"],["promote","يُرقّي"],["quit","يتوقف عن / يترك"],["rescue","ينقذ"],["shift","نوبة عمل"],["generator","مولّد كهرباء"],["income","دخل"],["worshipper","مُصلٍّ"]]
+},
+{ // ================= النموذج 3 =================
+L:[
+["Q","What does your brother do?","He's a mechanic.","He's twenty-five.","He's in Dubai.","He's fine."],
+["Q","When did you last see Major Ali?","Two days ago.","In the office.","He looked tired.","With his son."],
+["Q","How tall is the control tower?","About sixty meters.","About sixty minutes.","It's near the runway.","It's white."],
+["Q","Where should I put my bag?","Under your seat.","It's a heavy bag.","Yesterday.","Because it's big."],
+["Q","Why is the gate closed?","There's an inspection.","At six o'clock.","It's a big gate.","Yes, it is."],
+["Q","Which day is the exam?","Thursday.","In the morning.","At the school.","It's easy."],
+["Q","How many languages do you speak?","Two: Arabic and English.","Very well.","Since I was young.","In class."],
+["Q","Who's going to drive?","Sergeant Yousef.","The blue truck.","At noon.","To the base."],
+["Q","How are you feeling today?","Much better, thanks.","I feel the table.","It's Tuesday.","At home."],
+["Q","What's the capital of the UAE?","Abu Dhabi.","Arabic.","The dirham.","Ten million."],
+["Q","Can I use your phone?","Of course. Here it is.","It's a new phone.","I called him.","Phones are expensive."],
+["Q","How old is your father?","He's sixty.","He's tall.","He's a teacher.","He's at home."],
+["Q","When was the last time it rained here?","Last January.","Very hard.","In the desert.","For an hour."],
+["Q","Where's the nearest gas station?","Two blocks from here.","It's open all night.","Gas is cheap.","I need gas."],
+["Q","What should I do if I'm sick?","Go to the clinic.","You're sick.","Yesterday.","Very sick."],
+["S","I'll finish the report before lunch.","The report will be ready before lunch.","I finished it after lunch.","I won't finish it.","I'm having lunch now."],
+["S","The new barracks are bigger than the old ones.","The old barracks are smaller.","The new barracks are smaller.","They are the same size.","There are no old barracks."],
+["S","Yousef always arrives early.","Yousef is never late.","Yousef is often late.","Yousef never comes.","Yousef left early."],
+["S","It took two hours to repair the engine.","The repair lasted two hours.","The engine broke two hours ago.","The repair took twenty minutes.","The engine is still broken."],
+["S","Hassan couldn't come because he was sick.","Hassan's illness kept him away.","Hassan came even though he was sick.","Hassan wasn't sick.","Hassan came late."],
+["S","Not all the students understood the lesson.","Some students didn't understand.","All students understood.","No student understood.","There was no lesson."],
+["S","The flight was delayed by two hours.","The flight left two hours late.","The flight left two hours early.","The flight was cancelled.","The flight took two hours."],
+["S","I'd rather stay home tonight.","I prefer to stay home tonight.","I must go out tonight.","I stayed home last night.","I don't have a home."],
+["S","The instructor let us leave early.","We were allowed to leave early.","We had to stay late.","The instructor left early.","We left late."],
+["S","This is the first time I've seen snow.","I have never seen snow before.","I often see snow.","I saw snow last year.","I don't like snow."],
+["S","The tank is twice as heavy as the truck.","The truck is lighter than the tank.","The truck is heavier.","They weigh the same.","The tank is light."],
+["S","He forgot to bring his ID.","He didn't bring his ID.","He brought his ID.","He lost his ID yesterday.","He has no ID."],
+["S","Everyone except Ali went to the meeting.","Ali didn't go to the meeting.","Only Ali went.","Nobody went.","Ali led the meeting."],
+["S","Visitors may not enter without a pass.","A pass is required to enter.","Visitors can enter freely.","Passes are not needed.","Visitors must leave."],
+["S","We should have left earlier.","It was a mistake to leave so late.","We left early.","We didn't leave.","We will leave earlier tomorrow."],
+["D","Man: Is the cafeteria open? Woman: Not until eleven thirty. Question: When does the cafeteria open?","At 11:30","Now","At 11:00","At 1:30"],
+["D","Woman: Where did you put the keys? Man: I left them in the car. Question: Where are the keys?","In the car","In his pocket","In the office","On the table"],
+["D","Man: Do you know Captain Nasser? Woman: Yes, we trained together. Question: How does the woman know the captain?","They trained together","He is her brother","They are neighbors","She doesn't know him"],
+["D","Woman: Shall we eat here or take the food with us? Man: Let's take it with us. Question: What will they do?","Take the food away","Eat there","Not eat","Cook at home"],
+["D","Man: How's your new apartment? Woman: It's nice, but it's far from work. Question: What's the problem with the apartment?","It's far from work","It's small","It's expensive","It's old"],
+["D","Woman: Are you taking the exam this week? Man: No, next week. Question: When is the man's exam?","Next week","This week","Today","Next month"],
+["D","Man: I'd like to cash this check. Woman: Please sign the back. Question: Where are the speakers?","At a bank","At a store","At a post office","At a hotel"],
+["D","Woman: Your tire looks flat. Man: Yes, I need to change it. Question: What does the man need to do?","Change a tire","Buy fuel","Wash the car","Sell the car"],
+["D","Man: Did you hear the news? Woman: No, I've been in class all morning. Question: Why didn't the woman hear the news?","She was in class","She was asleep","She has no radio","She was travelling"],
+["D","Woman: How many people are coming to dinner? Man: Eight, including us. Question: How many guests are coming besides them?","Six","Eight","Ten","Two"],
+["D","Man: Excuse me, which bus goes to the airport? Woman: Number forty-two. Question: Which bus goes to the airport?","Number 42","Number 24","Number 4","Number 12"],
+["D","Woman: Did you enjoy the movie? Man: Not really. It was too long. Question: What did the man think of the movie?","It was too long","It was great","It was short","It was funny"],
+["N","Good morning. This is your captain speaking. We are now flying at thirty-five thousand feet. We expect to land in Riyadh in about one hour and twenty minutes. Question: Where is the plane going?","To Riyadh","To Dubai","To Kuwait","To Muscat"],
+["N","Question: How long until the plane lands?","About an hour and twenty minutes","About twenty minutes","About two hours","About thirty-five minutes"],
+["N","Attention all drivers. Starting Monday, all vehicles entering the base must stop at the new checkpoint on the east gate. The west gate will be closed. Question: When does the change begin?","On Monday","Today","On Sunday","Next month"],
+["N","Question: Which gate will be closed?","The west gate","The east gate","The north gate","All gates"],
+["N","Firefighters put out a fire at a warehouse in Sharjah last night. No one was hurt, but the building was badly damaged. The cause of the fire is not yet known. Question: Where was the fire?","At a warehouse","At a school","At a hospital","At an airport"],
+["N","Question: What do we know about the cause of the fire?","It is still unknown","It was electrical","It was a cigarette","It was the heat"],
+["N","Students across the country returned to school today after the summer vacation. More than one million students started the new academic year. Question: What happened today?","Schools reopened","Schools closed","Exams ended","Summer vacation began"],
+["N","Question: How many students started the new year?","More than one million","About one hundred thousand","Ten million","Exactly one million"]
+],
+P:{
+A:"The Arabian oryx is a desert antelope with long, straight horns. By 1972, it had disappeared from the wild because of hunting. Thanks to breeding programs, thousands now live in protected areas, including several in the UAE.",
+B:"Before a parachute jump, each jumper checks his equipment twice: once by himself and once with a partner. The jump master gives the final signal. If the main parachute fails, the jumper must open the reserve parachute immediately.",
+C:"Learning a new language takes time. Experts say that learning ten new words a day and reviewing them often is better than learning a hundred words once a week. Listening to the language every day also helps."},
+R:[
+["V","The instructor was *pleased* with our work.","happy","angry","surprised","worried"],
+["V","He *attempted* to climb the wall.","tried","refused","managed","forgot"],
+["V","The street is very *narrow*.","not wide","long","busy","dirty"],
+["V","The guard *allowed* us to enter.","permitted","stopped","ordered","asked"],
+["V","He *frequently* visits his parents.","often","never","rarely","once"],
+["V","The room was *spotless*.","very clean","very dirty","very dark","empty"],
+["V","The plan was *rejected*.","not accepted","approved","changed","copied"],
+["V","Water is *essential* for life.","necessary","dangerous","useless","cheap"],
+["V","The officer *inspected* the weapons.","examined","fired","cleaned","bought"],
+["V","The task was *complicated*.","difficult","easy","quick","pleasant"],
+["V","Please *reduce* your speed.","lower","increase","keep","check"],
+["V","The recruit *admitted* his mistake.","confessed","denied","repeated","forgot"],
+["V","The coast is *visible* from the tower.","can be seen","far away","hidden","dangerous"],
+["V","He has a *strong* desire to succeed.","powerful","weak","small","strange"],
+["V","The noise was *unbearable*.","too much to accept","pleasant","quiet","far away"],
+["V","The *outcome* of the test was good.","result","beginning","reason","place"],
+["V","She *assisted* the injured man.","helped","hurt","left","called"],
+["V","The rules are *strict*.","must be followed exactly","easy","new","unclear"],
+["V","The soldiers *gathered* in the hall.","came together","slept","ran away","argued"],
+["V","The supply of water is *limited*.","restricted","unlimited","dirty","free"],
+["G","My sister ___ in a bank.","works","work","working","is work"],
+["G","We ___ the movie last night.","watched","watch","have watched","are watching"],
+["G","The new runway ___ next year.","will be completed","completes","completed","is completing"],
+["G","If I were you, I ___ the job.","would take","will take","take","took"],
+["G","She has lived here ___ 2015.","since","for","ago","from"],
+["G","I enjoy ___ in the sea.","swimming","swim","to swimming","swam"],
+["G","This is ___ expensive watch I have ever bought.","the most","more","most","the more"],
+["G","The man ___ helped us was very kind.","who","which","whose","whom"],
+["G","How ___ times have you been to Oman?","many","much","long","often"],
+["G","You ___ smoke in the aircraft.","mustn't","needn't","don't have to","may"],
+["G","He was ___ tired to drive.","too","so","enough","very much"],
+["G","I'm good ___ mathematics.","at","in","on","for"],
+["G","When I arrived, they ___ dinner.","were having","have","are having","has had"],
+["G","Let's go, ___ we?","shall","will","do","don't"],
+["G","He asked me where I ___.","lived","live","do live","did live"],
+["G","I've ___ seen such a big plane.","never","ever","yet","already"],
+["G","She can't swim, and ___ can I.","neither","so","either","too"],
+["G","The documents ___ signed by the commander.","must be","must","must being","must to be"],
+["G","He suggested ___ a break.","taking","to take","take","took"],
+["G","Put the box ___ the two chairs.","between","among","during","through"],
+["P","Why did the oryx disappear from the wild?","Because of hunting","Because of disease","Because of heat","Because of floods","A"],
+["P","When had the oryx disappeared from the wild?","By 1972","By 1927","By 2002","By 1872","A"],
+["P","Where do many oryx live now?","In protected areas","In zoos only","In cities","In forests","A"],
+["P","What are the oryx's horns like?","Long and straight","Short and curved","Thick and round","It has no horns","A"],
+["P","How many times is the equipment checked?","Twice","Once","Three times","Never","B"],
+["P","Who gives the final signal?","The jump master","The pilot","The partner","The jumper","B"],
+["P","When is the reserve parachute used?","When the main one fails","Always","Before the jump","After landing","B"],
+["P","What do experts recommend?","Learning a few words daily","Learning many words weekly","Studying only grammar","Reading once a month","C"],
+["P","What else helps, according to the passage?","Listening every day","Sleeping more","Writing letters","Watching sports","C"],
+["P","The passage is mainly about ___.","how to learn a language","famous experts","weekly schedules","radio programs","C"]
+],
+W:[["pleased","مسرور"],["attempt","يحاول"],["narrow","ضيق"],["allow","يسمح"],["frequently","كثيراً / بشكل متكرر"],["spotless","نظيف جداً"],["reject","يرفض"],["essential","ضروري"],["inspect","يفحص"],["complicated","معقد"],["reduce","يقلل"],["admit","يعترف"],["visible","مرئي"],["desire","رغبة"],["unbearable","لا يُحتمل"],["outcome","نتيجة"],["assist","يساعد"],["strict","صارم"],["gather","يتجمع"],["limited","محدود"],["warehouse","مستودع"],["checkpoint","نقطة تفتيش"],["reserve","احتياطي"],["protected","محمي"],["barracks","ثكنات"]]
+},
+{ // ================= النموذج 4 =================
+L:[
+["Q","What time does the convoy leave?","At five in the morning.","On the main road.","Ten trucks.","With the lieutenant."],
+["Q","Where do you keep the first aid kit?","In the cabinet by the door.","Every Monday.","Because it's important.","The medic uses it."],
+["Q","How long will the course last?","Twelve weeks.","Twelve students.","In building nine.","It was difficult."],
+["Q","Who signed this order?","The base commander.","Last Thursday.","In blue ink.","Yes, he did."],
+["Q","Why is the gate closed?","They're repairing it.","At midnight.","The main gate.","It's very old."],
+["Q","How many rounds did you fire?","Thirty rounds.","Three times a week.","At the range.","It was loud."],
+["Q","What's your rank?","I'm a corporal.","I'm twenty-five.","I'm from Fujairah.","I'm fine, thanks."],
+["Q","Which way is the mess hall?","Straight ahead, then left.","At lunchtime.","It's very clean.","Rice and chicken."],
+["Q","When did you join the navy?","Four years ago.","For four years.","On a ship.","In uniform."],
+["Q","How did you hurt your ankle?","I slipped on the stairs.","It's my left ankle.","Very badly.","At the clinic."],
+["Q","Would you mind closing the window?","Not at all.","Yes, it's a window.","It's closed now.","I'm in my room."],
+["Q","Have you seen my notebook?","Yes, it's on your desk.","No, I don't write.","It's a blue book.","I read every day."],
+["Q","What does this button do?","It turns on the radar.","It's red.","It's on the panel.","It's very small."],
+["Q","How fast can this plane fly?","About nine hundred kilometers an hour.","About nine hours.","Very high.","Since nine o'clock."],
+["Q","Are you on duty this weekend?","No, I'm off until Monday.","Yes, I'm on the weekend.","It's Saturday.","Duty is important."],
+["S","The helicopter can carry up to twelve passengers.","Twelve is the maximum number of passengers.","The helicopter carries at least twelve passengers.","Only two passengers can fly.","The helicopter has twelve pilots."],
+["S","I'd rather stay home than go to the party.","I prefer staying home.","I want to go to the party.","I don't have a home.","I'm having a party at home."],
+["S","The lieutenant forgot to bring his ID card.","The lieutenant didn't bring his ID card.","The lieutenant lost his ID card.","The lieutenant has a new ID card.","The lieutenant remembered his card."],
+["S","The road will be closed for two days.","Nobody can use the road for two days.","The road was built in two days.","The road is two kilometers long.","The road will open in two hours."],
+["S","Yousef is the youngest pilot in the squadron.","No other pilot in the squadron is younger than Yousef.","Yousef is older than the other pilots.","Yousef is a new soldier.","Yousef is not a pilot."],
+["S","We got to the base before the storm started.","The storm started after we arrived.","We arrived during the storm.","The storm stopped us.","We left the base before the storm."],
+["S","He has to report to the captain every morning.","He must see the captain daily.","He sees the captain once a week.","He is the captain.","He writes reports in the evening."],
+["S","The new barracks are bigger than the old ones.","The old barracks are smaller.","The new barracks are smaller.","Both barracks are the same size.","There are no old barracks."],
+["S","I can't find my keys anywhere.","I don't know where my keys are.","I found my keys.","I don't have keys.","My keys are in my pocket."],
+["S","The medicine should be taken after meals.","Take the medicine after eating.","Take the medicine before eating.","Don't eat with the medicine.","The medicine is a meal."],
+["S","The mechanic has been working on that truck since morning.","He started working on the truck in the morning and is still working.","He finished the truck this morning.","He will start tomorrow morning.","He worked on it yesterday."],
+["S","Only officers may enter this room.","The room is for officers only.","Everyone may enter the room.","Officers can't enter the room.","The room is closed to officers."],
+["S","The temperature dropped sharply last night.","It became much colder last night.","It became hotter last night.","The temperature stayed the same.","It rained last night."],
+["S","Majid was promoted because of his hard work.","Majid's hard work got him a promotion.","Majid didn't work hard.","Majid lost his job.","Majid was promoted for no reason."],
+["S","The aircraft was delayed by an hour.","The aircraft left an hour late.","The aircraft left an hour early.","The aircraft didn't leave.","The flight lasted an hour."],
+["D","Man: Excuse me, is this seat taken? Woman: No, go ahead. Question: What does the man want to do?","Sit down","Buy a ticket","Leave","Stand up"],
+["D","Woman: You look tired. Man: I was on duty all night. Question: Why is the man tired?","He worked all night","He was sick","He ran a lot","He watched TV"],
+["D","Man: How much is the bill? Woman: Eighty dirhams, including tax. Question: How much does the man have to pay?","Eighty dirhams","Eighteen dirhams","Eight dirhams","Eight hundred dirhams"],
+["D","Woman: Is the printer working? Man: No, it's out of paper. Question: What is the problem with the printer?","It has no paper","It is broken","It has no ink","It is turned off"],
+["D","Man: When is your flight? Woman: Tomorrow at seven, but I have to be at the airport by five. Question: When must the woman be at the airport?","At five","At seven","At eleven","Tonight"],
+["D","Woman: Did you call the technician? Man: Yes, he's coming this afternoon. Question: When will the technician come?","This afternoon","This morning","Tomorrow","Next week"],
+["D","Man: I'd like to change my room. Woman: What's wrong with it? Man: The air conditioner is too noisy. Question: Why does the man want a new room?","The air conditioner is noisy","The room is too small","The room is dirty","The room is too hot"],
+["D","Woman: Can you lend me your pen? Man: Sorry, I only have a pencil. Question: What does the man have?","A pencil","A pen","Nothing","Two pens"],
+["D","Man: Let's meet at the gate at six. Woman: Six is too early. How about seven? Question: What time does the woman suggest?","Seven","Six","Five","Eight"],
+["D","Woman: Where did you learn to swim? Man: My father taught me when I was a child. Question: Who taught the man to swim?","His father","His coach","His brother","Nobody"],
+["D","Man: Is the pharmacy open now? Woman: No, it closes at ten, and it's ten thirty. Question: Why can't they go to the pharmacy?","It is already closed","It is too far","It has no medicine","It opens at ten"],
+["D","Woman: How was the exam? Man: Easier than I expected. Question: What did the man think of the exam?","It was not as hard as he thought","It was very hard","It was too long","He didn't take it"],
+["N","Attention please. The base swimming pool will be closed all next week for cleaning. It will reopen on Sunday the fifteenth. Question: Why will the pool be closed?","For cleaning","For a competition","For repairs to the roof","Because of the heat"],
+["N","Question: When will the pool reopen?","On Sunday the fifteenth","Tomorrow","Next month","On Friday the fifth"],
+["N","This is your captain speaking. We are now flying at thirty-five thousand feet. We will land in Riyadh in about one hour and twenty minutes. Question: Where is the plane going?","Riyadh","Jeddah","Kuwait","Amman"],
+["N","Question: How long until the plane lands?","About an hour and twenty minutes","About twenty minutes","About thirty-five minutes","About two hours"],
+["N","Police are asking drivers to avoid the coast road this evening because of a large traffic accident. No one was seriously hurt. Question: What does the police want drivers to do?","Use a different road","Drive faster","Stop their cars","Call the police"],
+["N","Question: What do we know about the accident?","Nobody was badly injured","Many people died","It happened in the morning","It was on the desert road"],
+["N","All students in the English course must take a placement test on Monday at eight a.m. in the language center. Bring a pencil and your ID card. Question: Where will the test be held?","In the language center","In the gym","In the library","In the main office"],
+["N","Question: What should students bring?","A pencil and an ID card","A dictionary","A computer","Their passports"]
+],
+P:{
+A:"Falconry is an old tradition in the Arabian Gulf. In the past, people used falcons to hunt for food in the desert. Today it is mostly a sport. A good falcon can cost thousands of dirhams, and the UAE even has special hospitals that care only for falcons.",
+B:"Captain Rashid flies search and rescue helicopters. Last month, his crew was called to help three fishermen whose boat had sunk near the coast. Although the sea was rough, the crew found the men after two hours and flew them safely to the hospital.",
+C:"Sleep is very important for soldiers. Studies show that people who sleep less than six hours a night make more mistakes and react more slowly. Most adults need seven to eight hours of sleep. Avoiding coffee late in the day can help people sleep better."},
+R:[
+["V","The soldiers were *exhausted* after the long march.","very tired","very hungry","very happy","very angry"],
+["V","The general will *address* the troops tomorrow.","speak to","write to","pay","train"],
+["V","The weather was *mild* yesterday.","not too hot or cold","very hot","very windy","very cold"],
+["V","He *repaired* the radio himself.","fixed","bought","broke","sold"],
+["V","The pilot *descended* slowly.","went down","went up","turned","stopped"],
+["V","The order was *cancelled*.","called off","given","repeated","written"],
+["V","The ship *vanished* in the fog.","disappeared","sank","stopped","appeared"],
+["V","The supplies were *adequate* for the mission.","enough","too few","expensive","late"],
+["V","Please *respond* to the message today.","answer","delete","forward","read"],
+["V","The officer *demanded* an explanation.","strongly asked for","refused","gave","forgot"],
+["V","The task requires a *steady* hand.","not shaking","strong","clean","big"],
+["V","The building is *ancient*.","very old","very tall","very modern","very large"],
+["V","He *glanced* at his watch.","looked quickly","stared","hit","removed"],
+["V","The recruits were *nervous* before the test.","worried","confident","bored","sleepy"],
+["V","The road is *hazardous* at night.","dangerous","dark","busy","quiet"],
+["V","The sergeant *praised* the new soldiers.","said good things about","shouted at","punished","trained"],
+["V","We need to *locate* the missing vehicle.","find","repair","drive","sell"],
+["V","The food was *plentiful*.","more than enough","bad","cold","not enough"],
+["V","He *prefers* tea to coffee.","likes better","dislikes","drinks less","makes"],
+["V","The mission was *postponed*.","delayed","completed","started","cancelled"],
+["G","She ___ English for three years now.","has studied","studies","is study","studied since"],
+["G","The letter ___ yesterday.","was delivered","delivered","is delivering","delivers"],
+["G","If it rains, we ___ inside.","will train","would train","trained","training"],
+["G","He is ___ than his father.","taller","tall","tallest","more tall"],
+["G","I didn't go to work ___ I was sick.","because","so","but","although"],
+["G","We have ___ milk left.","a little","a few","many","few"],
+["G","He ___ to the gym every day.","goes","go","going","gone"],
+["G","She told me ___ the door.","to close","close","closing","closed"],
+["G","The plane ___ by the time we got to the airport.","had taken off","takes off","has taken off","was take off"],
+["G","This is the hangar ___ the jets are kept.","where","which","who","what"],
+["G","Did you remember ___ the lights?","to turn off","turning off","turn off","turned off"],
+["G","He ___ be at home; his car is outside.","must","can't","shouldn't","needn't"],
+["G","They have ___ finished the job.","already","yet","ever","still not"],
+["G","The test was ___ easy that everyone passed.","so","such","too","very much"],
+["G","I'm interested ___ learning to fly.","in","on","at","for"],
+["G","Either you ___ I will drive the truck.","or","nor","and","but"],
+["G","The more you practice, the ___ you become.","better","good","best","more good"],
+["G","He isn't old enough ___.","to drive","driving","drive","for drive"],
+["G","The equipment ___ cleaned every week.","is","are","be","been"],
+["G","Have you finished your homework ___?","yet","already","still","since"],
+["P","What did people use falcons for in the past?","Hunting for food","Carrying messages","Sport only","Guarding homes","A"],
+["P","What is falconry mostly used for today?","Sport","Hunting for food","Selling","Protection","A"],
+["P","What does the passage say about falcon hospitals?","They care only for falcons","They are for all animals","They are very old","They are only in Saudi Arabia","A"],
+["P","The passage is mainly about ___.","falconry in the Gulf","desert animals","expensive hospitals","food in the desert","A"],
+["P","What is Captain Rashid's job?","Flying rescue helicopters","Fishing","Working in a hospital","Building boats","B"],
+["P","What happened to the fishermen's boat?","It sank","It was stolen","It caught fire","It lost its engine","B"],
+["P","How long did it take to find the men?","Two hours","Two days","Twenty minutes","Twelve hours","B"],
+["P","What happens to people who sleep less than six hours?","They make more mistakes","They become stronger","They react faster","They drink less coffee","C"],
+["P","How much sleep do most adults need?","Seven to eight hours","Five to six hours","Ten hours","Four hours","C"],
+["P","According to the passage, what can help people sleep better?","Not drinking coffee late in the day","Drinking coffee at night","Exercising at night","Sleeping during the day","C"]
+],
+W:[["exhausted","منهك / متعب جداً"],["address","يخاطب"],["mild","معتدل"],["repair","يصلح"],["descend","يهبط / ينزل"],["cancel","يلغي"],["vanish","يختفي"],["adequate","كافٍ"],["respond","يرد / يستجيب"],["demand","يطالب"],["steady","ثابت"],["ancient","قديم جداً"],["glance","يلقي نظرة سريعة"],["nervous","متوتر / قلق"],["hazardous","خطِر"],["praise","يمدح"],["locate","يحدد مكان"],["plentiful","وفير"],["prefer","يفضل"],["convoy","قافلة"],["rank","رتبة"],["barracks","ثكنات"],["placement test","اختبار تحديد مستوى"],["rescue","إنقاذ"],["falcon","صقر"]]
+},
+{ // ================= النموذج 5 =================
+L:[
+["Q","What's the name of your unit?","The Third Signal Company.","On the second floor.","Since last year.","Two hundred soldiers."],
+["Q","Where are you going on leave?","To visit my family in Ras Al Khaimah.","For ten days.","Next Thursday.","By car."],
+["Q","How old is this helicopter?","About fifteen years old.","About fifteen meters long.","It flies very well.","It's in the hangar."],
+["Q","Who will lead the patrol tonight?","Sergeant Obaid.","At eleven p.m.","Along the border.","Six soldiers."],
+["Q","Why did the engine stop?","It ran out of fuel.","In the middle of the road.","Ten minutes ago.","Yes, it stopped."],
+["Q","How much water should we bring?","Two liters each.","Two hours each.","Cold water.","From the kitchen."],
+["Q","What color is the emergency exit sign?","Green.","Big.","Over the door.","For emergencies."],
+["Q","When is the next bus to the city?","In twenty minutes.","For twenty minutes.","Twenty passengers.","To the city center."],
+["Q","Which shirt should I wear to the ceremony?","The white one.","At the ceremony.","Tomorrow evening.","It's expensive."],
+["Q","How did the exercise go?","Very well, thank you.","Every year.","In the desert.","With the army."],
+["Q","Could you tell me where the library is?","It's next to the mosque.","It has many books.","It opens at eight.","I like reading."],
+["Q","What do you usually do on weekends?","I go fishing with my brothers.","I usually do.","It's on Friday.","Weekends are short."],
+["Q","Is this the right form?","No, you need the blue one.","Yes, it's a paper.","I'm in good form.","Fill it now."],
+["Q","How long have you known Hamdan?","Since we were at school.","For school.","He's very tall.","He's a pilot."],
+["Q","Shall I turn on the air conditioner?","Yes, please. It's hot in here.","It's an air conditioner.","No, I turned it.","It was hot yesterday."],
+["S","The colonel is expected to arrive at noon.","The colonel should come at twelve o'clock.","The colonel arrived at noon yesterday.","The colonel never arrives on time.","The colonel left at noon."],
+["S","There is no need to hurry.","We have plenty of time.","We must go fast.","We are late.","We need to run."],
+["S","Fatima speaks Arabic and English equally well.","Fatima's Arabic and English are at the same level.","Fatima's English is better.","Fatima only speaks Arabic.","Fatima is learning English."],
+["S","The light on the panel went off suddenly.","The panel light stopped working unexpectedly.","The light was turned on slowly.","There is no light on the panel.","The panel was painted."],
+["S","I haven't seen Ali since last summer.","The last time I saw Ali was last summer.","I see Ali every summer.","I saw Ali yesterday.","I have never met Ali."],
+["S","Most of the trainees passed the shooting test.","Only a few trainees failed the shooting test.","Most of the trainees failed.","Nobody passed the test.","All the trainees failed."],
+["S","The doctor told him to stay in bed for three days.","He has to rest for three days.","He must work for three days.","He went to bed three days ago.","The doctor stayed three days."],
+["S","The mission was completed ahead of schedule.","The mission finished earlier than planned.","The mission finished late.","The mission was not completed.","The mission had no schedule."],
+["S","Hassan lent his car to his cousin.","Hassan's cousin borrowed his car.","Hassan borrowed his cousin's car.","Hassan sold his car.","Hassan's cousin has no car."],
+["S","You'd better check the oil before you leave.","It's a good idea to check the oil first.","You don't need to check the oil.","The oil was checked yesterday.","You should leave without the oil."],
+["S","The radio is too heavy for one person to carry.","One person can't carry the radio.","The radio is very light.","Anyone can carry the radio.","The radio is very small."],
+["S","Saif usually walks to work, but today he drove.","Saif doesn't usually drive to work.","Saif always drives to work.","Saif never walks.","Saif didn't go to work today."],
+["S","All flights will be suspended during the storm.","No planes will fly while the storm continues.","Flights will increase during the storm.","Flights will leave before the storm.","Only some flights are affected."],
+["S","The new uniform is lighter than the old one.","The old uniform was heavier.","The old uniform was lighter.","Both uniforms weigh the same.","There is no new uniform."],
+["S","The lecture was so boring that I fell asleep.","I fell asleep because the lecture wasn't interesting.","The lecture was exciting.","I didn't go to the lecture.","I slept before the lecture."],
+["D","Man: Where should I put these files? Woman: On the shelf behind my desk. Question: Where should the man put the files?","On the shelf","On the desk","In the drawer","On the floor"],
+["D","Woman: Are you coming to dinner? Man: I can't. I have to finish this report. Question: Why can't the man go to dinner?","He has to finish a report","He isn't hungry","He is sick","He already ate"],
+["D","Man: How many people are coming to the meeting? Woman: Fifteen, plus the two guests from headquarters. Question: How many people are coming in total?","Seventeen","Fifteen","Two","Fifty"],
+["D","Woman: Your car is making a strange noise. Man: I know. I'm taking it to the garage tomorrow. Question: What will the man do tomorrow?","Take his car to the garage","Buy a new car","Sell his car","Wash his car"],
+["D","Man: Did you watch the match last night? Woman: No, I fell asleep early. Question: Why didn't the woman watch the match?","She fell asleep","She was working","Her TV was broken","She doesn't like football"],
+["D","Woman: Good morning. I have an appointment with Dr. Salem. Man: Please have a seat; he'll see you shortly. Question: Where does this conversation probably take place?","At a clinic","At a bank","At a restaurant","At a garage"],
+["D","Man: Which bus goes to the airport? Woman: Number forty-two, but it only runs every half hour. Question: How often does the bus run?","Every thirty minutes","Every hour","Every fifteen minutes","Every forty-two minutes"],
+["D","Woman: Did you buy the tickets? Man: Yes, but they were twice as expensive as last year. Question: What does the man say about the tickets?","They cost more than last year","They were cheap","They were sold out","He didn't buy any"],
+["D","Man: I can't hear you. The signal is bad. Woman: I'll call you back from the office phone. Question: What will the woman do?","Call again from another phone","Send a letter","Go to the office later","Stop calling"],
+["D","Woman: How do you like your new job? Man: The work is fine, but the hours are long. Question: What does the man dislike about his job?","The long hours","The work","His boss","The salary"],
+["D","Man: Is Corporal Ahmed here? Woman: He just went to lunch. He'll be back in thirty minutes. Question: Where is Corporal Ahmed?","At lunch","In the office","On leave","At the hospital"],
+["D","Woman: Shall we take the stairs or the elevator? Man: The stairs. The elevator is out of order. Question: Why will they take the stairs?","The elevator isn't working","They want exercise","The elevator is full","The stairs are faster"],
+["N","Good evening. Here is the weather forecast. Tomorrow will be sunny in the morning, but heavy rain is expected in the eastern mountains in the afternoon. Question: What will the weather be like tomorrow morning?","Sunny","Rainy","Cloudy","Windy"],
+["N","Question: Where is heavy rain expected?","In the eastern mountains","In the western desert","Along the coast","In the capital"],
+["N","Attention all passengers. Flight eight-four-three to Cairo has been delayed because of a technical problem. The new departure time is ten forty-five. Question: Why was the flight delayed?","A technical problem","Bad weather","A late pilot","Too many passengers"],
+["N","Question: What is the new departure time?","Ten forty-five","Eight forty-three","Ten fifteen","Eleven forty-five"],
+["N","The Ministry of Health has announced a free vaccination campaign for children under five. The campaign will run for two weeks in all health centers. Question: Who can get the free vaccine?","Children under five","All adults","Old people only","Soldiers"],
+["N","Question: How long will the campaign last?","Two weeks","Two days","Five weeks","Two months"],
+["N","All personnel are reminded that the annual fitness test will take place next Tuesday. Soldiers must complete a five-kilometer run in less than thirty minutes. Question: When is the fitness test?","Next Tuesday","Today","Next month","Last Tuesday"],
+["N","Question: What is the time limit for the run?","Thirty minutes","Five minutes","Fifty minutes","One hour"]
+],
+P:{
+A:"Dates have been an important food in the Arabian Peninsula for thousands of years. Date palms can grow in very hot and dry weather. A single tree can produce more than one hundred kilograms of fruit a year. Dates are rich in sugar and give quick energy, so travelers in the desert often carried them.",
+B:"Every new pilot must spend many hours in a flight simulator before flying a real aircraft. A simulator is a machine that looks and feels like a real cockpit. Instructors can create emergencies, such as engine fires or bad weather, so that students can practice without any danger.",
+C:"The Burj Khalifa in Dubai opened in 2010. At 828 meters, it is the tallest building in the world. It has more than 160 floors, and its elevators are among the fastest in the world. On a clear day, people can see the building from almost 95 kilometers away."},
+R:[
+["V","The general was *satisfied* with the results.","pleased","disappointed","surprised","confused"],
+["V","The soldier *halted* at the gate.","stopped","waited","shouted","ran"],
+["V","The room was *crowded*.","full of people","empty","very large","very hot"],
+["V","He *concealed* the map in his bag.","hid","found","tore","drew"],
+["V","The pilot made a *swift* decision.","quick","wrong","slow","difficult"],
+["V","The tank was *damaged* in the exercise.","harmed","used","cleaned","moved"],
+["V","The students were *instructed* to sit down.","told","asked not","forbidden","allowed"],
+["V","The *primary* goal is safety.","main","second","last","only small"],
+["V","She *purchased* a new phone.","bought","sold","lost","broke"],
+["V","The answer was *incorrect*.","wrong","right","clear","short"],
+["V","Prices *increased* last year.","went up","went down","stayed the same","disappeared"],
+["V","He was *absent* from class yesterday.","not present","late","early","sick"],
+["V","The soldiers *departed* at dawn.","left","arrived","slept","ate"],
+["V","The *duration* of the flight is three hours.","length of time","cost","distance","height"],
+["V","He *ignored* the warning.","paid no attention to","followed","wrote","repeated"],
+["V","The roads are *slippery* after rain.","easy to slide on","dry","wide","clean"],
+["V","Smoking can *harm* your health.","damage","improve","test","protect"],
+["V","The village was *evacuated* before the flood.","emptied of people","destroyed","built","visited"],
+["V","He gave a *precise* answer.","exact","long","wrong","funny"],
+["V","The officer *approved* the leave request.","accepted","refused","lost","wrote"],
+["G","He ___ to Oman twice this year.","has been","is","goes","be"],
+["G","The new hospital ___ in 2018.","was built","built","has built","is building"],
+["G","If you heat ice, it ___.","melts","melted","would melt","melting"],
+["G","She is the ___ student in the class.","best","better","good","most good"],
+["G","I'll wait here ___ you come back.","until","by","during","since"],
+["G","There were ___ people at the ceremony.","a lot of","much","a little","any"],
+["G","Do you know what time ___?","the train leaves","does the train leave","leaves the train","the train does leave"],
+["G","He stopped ___ two years ago.","smoking","to smoke","smoke","smoked"],
+["G","We ___ dinner when the phone rang.","were having","have","had had","are having"],
+["G","This is the soldier ___ saved the child.","who","which","whose","whom"],
+["G","You ___ wear a helmet when you ride a motorcycle.","should","shouldn't","mustn't","don't"],
+["G","I would have come if you ___ me.","had told","told","tell","have told"],
+["G","The flight is ___ long that we need two meals.","so","such","too","very"],
+["G","They arrived ___ the airport at nine.","at","in","on","to"],
+["G","She doesn't like coffee, and ___ do I.","neither","so","either","too"],
+["G","The more carefully you drive, the ___ you are.","safer","safe","safest","more safe"],
+["G","He asked me ___ I had finished the report.","whether","that","what","which"],
+["G","The trucks need ___ before the trip.","checking","check","checked","to checking"],
+["G","There ___ any bread left.","isn't","aren't","doesn't","haven't"],
+["G","He speaks English ___ than his brother.","more fluently","fluenter","most fluently","fluent"],
+["P","Why did desert travelers carry dates?","They give quick energy","They are heavy","They are very cheap","They grow quickly","A"],
+["P","How much fruit can one date palm produce?","More than 100 kilograms a year","Exactly 10 kilograms a year","About 1,000 kilograms a month","Less than 1 kilogram","A"],
+["P","What kind of weather can date palms grow in?","Very hot and dry","Cold and wet","Snowy","Only mild weather","A"],
+["P","The passage is mainly about ___.","the importance of dates","desert travel","sugar factories","Arabian history","A"],
+["P","What is a flight simulator?","A machine like a real cockpit","A small aircraft","A flight school","A kind of engine","B"],
+["P","Why do instructors create emergencies in the simulator?","So students can practice safely","To scare students","To test the machine","To save fuel","B"],
+["P","Which emergency is mentioned in the passage?","An engine fire","A broken wheel","A lost pilot","A radio problem","B"],
+["P","How tall is the Burj Khalifa?","828 meters","160 meters","95 meters","2010 meters","C"],
+["P","When did the Burj Khalifa open?","In 2010","In 2000","In 2016","In 1990","C"],
+["P","What does the passage say about its elevators?","They are among the fastest in the world","They are very old","There are 160 of them","They are often broken","C"]
+],
+W:[["satisfied","راضٍ"],["halt","يتوقف"],["crowded","مزدحم"],["conceal","يخفي"],["swift","سريع"],["damaged","متضرر / تالف"],["instruct","يأمر / يوجّه"],["primary","أساسي / رئيسي"],["purchase","يشتري"],["incorrect","خاطئ"],["increase","يزداد"],["absent","غائب"],["depart","يغادر"],["duration","مدة"],["ignore","يتجاهل"],["slippery","زلق"],["harm","يضر"],["evacuate","يُخلي"],["precise","دقيق"],["approve","يوافق على"],["suspend","يوقف مؤقتاً"],["patrol","دورية"],["ceremony","حفل / مراسم"],["vaccination","تطعيم"],["simulator","جهاز محاكاة"]]
+}
+];
+
+const SEC={
+Q:["Questions","أسئلة","You will hear a question. Choose the best answer."],
+S:["Statements","عبارات","You will hear a statement. Choose the answer that has the same meaning."],
+D:["Dialogs","حوارات","Listen to the conversation and the question. Choose the correct answer."],
+N:["Announcements & News","إعلانات وأخبار","Listen to the talk and answer the question."],
+V:["Vocabulary","مفردات","Choose the answer closest in meaning to the underlined word."],
+G:["Grammar","قواعد","Choose the answer that correctly completes the sentence."],
+P:["Reading","فقرات","Read the passage and answer the question."]};
+
+let F=0,Q=[],P={},i=0,ans=[],played=[],mode='train',part=1,t=0,timer,actx,U=[];
+const $=id=>document.getElementById(id);
+const show=(...ids)=>ids.forEach(x=>$(x).classList.remove('hidden'));
+const hide=(...ids)=>ids.forEach(x=>$(x).classList.add('hidden'));
+const shuffle=a=>{for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a};
+const getBest=f=>{try{return localStorage.getItem('alcpt3_best_'+f)}catch(e){return null}};
+const setBest=(f,s)=>{try{if(s>(+getBest(f)||0))localStorage.setItem('alcpt3_best_'+f,s)}catch(e){}};
+
+function setMode(m){mode=m;$('mTrain').classList.toggle('on',m=='train');$('mExam').classList.toggle('on',m=='exam');}
+function home(){
+  clearInterval(timer);speechSynthesis.cancel();
+  hide('testScr','midScr','vocScr','resScr','hud','barW');show('homeScr');
+  $('heroSub').textContent='محاكي الاختبار — 5 نماذج • 500 سؤال';
+  let h='';
+  FORMS.forEach((_,f)=>{const b=getBest(f);
+    h+=`<div class="form"><div class="n">${f+1}</div><div class="info"><b>النموذج ${f+1}</b><small>50 استماع • 50 قراءة</small>
+    <div class="best">${b!==null?'🏆 أعلى درجة: '+b:''}</div></div>
+    <div class="acts"><button class="btn" onclick="start(${f})">ابدأ ▶</button><button class="btn sec" onclick="vocab(${f})">📚 كلمات</button></div></div>`;});
+  $('forms').innerHTML=h;window.scrollTo(0,0);
+}
+
+/* ===== الصوت ===== */
+function parseAudio(a){
+  const out=[];let p=1;
+  a.split(/(Man:|Woman:|Question:)/).forEach(s=>{s=s.trim();if(!s)return;
+    if(s=='Man:')p=.75;else if(s=='Woman:')p=1.35;
+    else if(s=='Question:'){p=1;out.push({t:'Question.',p:1});}
+    else out.push({t:s,p});});
+  return out;
+}
+function playItem(k){
+  if(played[k]||!('speechSynthesis' in window))return;
+  played[k]=true;speechSynthesis.cancel();
+  const b=$('pb');if(b){b.disabled=true;b.classList.add('on');}
+  if($('pst'))$('pst').textContent='جارٍ التشغيل... استمع جيداً';
+  const segs=parseAudio(Q[k].a);
+  U=segs.map((s,n)=>{const u=new SpeechSynthesisUtterance(s.t);u.lang='en-US';u.rate=+$('rate').value;u.pitch=s.p;
+    if(n==segs.length-1)u.onend=()=>{if(i==k){const b=$('pb');if(b){b.classList.remove('on');b.textContent='✔';}
+      if($('pst'))$('pst').textContent='تم التشغيل — لا يمكن الإعادة';}};
+    speechSynthesis.speak(u);return u;});
+}
+function say(w){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(w);u.lang='en-US';u.rate=.85;U=[u];speechSynthesis.speak(u);}
+function tone(ok){
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(),g=actx.createGain();o.connect(g);g.connect(actx.destination);
+    o.frequency.value=ok?880:220;o.type=ok?'sine':'square';
+    g.gain.setValueAtTime(.12,actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+.3);
+    o.start();o.stop(actx.currentTime+.3);}catch(e){}
+  if(!ok&&navigator.vibrate)navigator.vibrate(150);
+}
+
+/* ===== الاختبار ===== */
+function mk(s,q,opts,a,p){const o=shuffle([...opts]);return{s,q,a,p,o,c:o.indexOf(opts[0])}}
+function start(f){
+  F=f;const D=FORMS[f];P=D.P;
+  Q=[...D.L.map(x=>mk(x[0],'',x.slice(2,6),x[1],null)),...D.R.map(x=>mk(x[0],x[1],x.slice(2,6),null,x[6]))];
+  ans=Array(100).fill(null);played=Array(100).fill(false);i=0;part=1;t=20*60;
+  hide('homeScr','resScr','vocScr','midScr');show('testScr','hud','barW','navB');
+  $('hForm').textContent='النموذج '+(f+1);
+  $('heroSub').textContent=mode=='train'?'🎯 وضع التدريب':'📝 وضع الاختبار الحقيقي';
+  tick();counts();render(true);
+}
+function tick(){
+  clearInterval(timer);showTime();
+  timer=setInterval(()=>{t--;showTime();if(t<=0){part==1?endPart1():finish(true);}},1000);
+}
+function showTime(){const m=Math.floor(t/60),s=t%60;$('hTime').textContent=`${m}:${String(s).padStart(2,'0')}`;$('hTimeW').classList.toggle('warn',t<=60);}
+function counts(){
+  let ok=0,no=0,n=0;ans.forEach((a,k)=>{if(a!==null){n++;a===Q[k].c?ok++:no++;}});
+  $('hScore').textContent=mode=='train'?`✅ ${ok}  ❌ ${no}`:`📝 ${n}/100`;
+}
+function render(fresh){
+  const x=Q[i],a=ans[i],isL=i<50,done=mode=='train'&&a!==null;
+  $('hPart').textContent=isL?'🎧 الجزء 1':'📖 الجزء 2';
+  $('hNum').textContent=`${i+1}/100`;
+  $('bar').style.width=(i+1)+'%';
+  let h=`<div class="sec"><span class="tag ${isL?'':'r'}">${isL?'Part I – Listening':'Part II – Reading'} • ${SEC[x.s][1]}</span><b style="color:var(--mu)">${i+1}</b></div>
+  <div class="instr en">${SEC[x.s][0]}: ${SEC[x.s][2]}</div>`;
+  if(isL){
+    h+=`<div class="play"><button class="pb" id="pb" ${played[i]?'disabled':''} onclick="playItem(${i})">${played[i]?'✔':'🔊'}</button>
+    <span class="pst" id="pst">${played[i]?'تم التشغيل — لا يمكن الإعادة':'اضغط للاستماع — مرة واحدة فقط'}</span></div>`;
+  }else{
+    if(x.p)h+=`<div class="passage en">${P[x.p]}</div>`;
+    h+=`<div class="q en">${x.q.replace(/\*(.+?)\*/g,'<u>$1</u>')}</div>`;
+  }
+  x.o.forEach((o,k)=>{
+    let c='';
+    if(done){c=k===x.c?'ok':k===a?'no':'dim';}
+    else if(a===k)c='sel';
+    h+=`<button class="opt en ${c}" ${done?'disabled':''} onclick="pick(${k})"><span class="l">${'ABCD'[k]}</span><span>${o}</span></button>`;
+  });
+  if(done){
+    const ok=a===x.c;
+    h+=`<div class="fb ${ok?'ok':'no'}">${ok?'✅ إجابة صحيحة، أحسنت!':`❌ إجابة خاطئة. الصحيحة: <b dir="ltr">${'ABCD'[x.c]}. ${x.o[x.c]}</b>`}
+      ${isL?`<div class="tr">📝 ${x.a}</div>`:''}</div>`;
+  }
+  $('qbox').innerHTML=h;
+  $('qbox').style.animation='none';$('qbox').offsetHeight;$('qbox').style.animation='';
+  $('prev').disabled=(i==0||i==50);
+  $('next').textContent=i==49?'إنهاء الاستماع ⏭':i==99?'إنهاء الاختبار 🏁':'التالي ←';
+  if(fresh&&isL&&!played[i]&&$('auto').checked)playItem(i);
+}
+function pick(k){
+  if(mode=='train'&&ans[i]!==null)return;
+  ans[i]=k;if(mode=='train')tone(k===Q[i].c);counts();render(false);
+}
+function go(d){
+  if(d>0&&i==49){
+    const left=ans.slice(0,50).filter(a=>a===null).length;
+    if(left&&!confirm(`لديك ${left} سؤال استماع بدون إجابة، ولن تستطيع الرجوع. هل تريد الانتقال للقراءة؟`))return;
+    endPart1();return;
+  }
+  if(d>0&&i==99){finish(false);return;}
+  speechSynthesis.cancel();
+  const min=part==1?0:50,max=part==1?49:99;
+  i=Math.max(min,Math.min(max,i+d));render(true);window.scrollTo({top:0,behavior:'smooth'});
+}
+function endPart1(){
+  clearInterval(timer);speechSynthesis.cancel();
+  hide('testScr');show('midScr');
+  const n=ans.slice(0,50).filter(a=>a!==null).length;
+  $('midInfo').textContent=mode=='train'
+    ?`نتيجتك في الاستماع: ${ans.slice(0,50).filter((a,k)=>a===Q[k].c).length} / 50`
+    :`أجبت عن ${n} من 50 سؤال`;
+  window.scrollTo(0,0);
+}
+function startPart2(){part=2;i=50;t=35*60;hide('midScr');show('testScr');tick();render(true);window.scrollTo(0,0);}
+function finish(timeUp){
+  if(!timeUp){const left=ans.slice(50).filter(a=>a===null).length;
+    if(left&&!confirm(`لديك ${left} سؤال بدون إجابة. هل تريد الإنهاء؟`))return;}
+  clearInterval(timer);speechSynthesis.cancel();
+  let sc=0,sl=0,sr=0,rev='';const by={};
+  Q.forEach((x,k)=>{by[x.s]=by[x.s]||[0,0];by[x.s][1]++;
+    if(ans[k]===x.c){sc++;by[x.s][0]++;k<50?sl++:sr++;}
+    else rev+=`<div class="rev en"><b>${k+1}.</b> <small style="color:var(--mu)">[${SEC[x.s][0]}]</small><br>
+      ${k<50?'<i>🔊 '+x.a+'</i>':(x.p?'<small>(Passage '+x.p+')</small> ':'')+x.q.replace(/\*(.+?)\*/g,'<u>$1</u>')}<br>
+      <span class="c-no">✘ ${ans[k]===null?'No answer':x.o[ans[k]]}</span><br><span class="c-ok">✔ ${x.o[x.c]}</span></div>`;});
+  setBest(F,sc);
+  const col=sc>=70?'var(--ok)':sc>=60?'var(--gold)':'var(--no)';
+  const msg=sc>=70?'ممتاز! مستواك قوي 👏':sc>=60?'جيد، تجاوزت 60 💪':'تحتاج مزيداً من التدريب 📚';
+  hide('testScr','midScr','hud','barW');show('resScr');
+  $('heroSub').textContent=(timeUp?'انتهى الوقت ⏰ — ':'')+'نتيجة النموذج '+(F+1);
+  let b='';Object.keys(SEC).forEach(s=>{if(by[s])b+=`<div><span>${SEC[s][1]}</span><b>${by[s][0]}/${by[s][1]}</b></div>`;});
+  $('resScr').innerHTML=`<div class="card" style="text-align:center">
+    <div class="ring" style="background:conic-gradient(${col} ${sc*3.6}deg,#e2e8f0 0)"><div>${sc}<small>من 100</small></div></div>
+    <h2>${msg}</h2>
+    <div class="brk"><div><span>🎧 الاستماع</span><b>${sl}/50</b></div><div><span>📖 القراءة</span><b>${sr}/50</b></div>${b}</div>
+    <div class="nav"><button class="btn sec" onclick="home()">الرئيسية</button><button class="btn" onclick="start(${F})">إعادة 🔄</button></div></div>
+    ${rev?`<div class="card"><h2>مراجعة الأخطاء (${100-sc})</h2>${rev}</div>`:''}`;
+  window.scrollTo(0,0);
+}
+
+/* ===== بطاقات الكلمات ===== */
+function vocab(f){
+  hide('homeScr');show('vocScr');
+  $('heroSub').textContent='📚 كلمات النموذج '+(f+1)+' — اضغط البطاقة لرؤية المعنى';
+  let h=`<div class="card"><div class="nav" style="margin-bottom:14px">
+    <button class="btn sec" onclick="home()">→ رجوع</button>
+    <button class="btn" onclick="document.querySelectorAll('.vc').forEach(c=>c.classList.toggle('flip'))">إظهار / إخفاء الكل</button></div><div class="vgrid">`;
+  FORMS[f].W.forEach(w=>{h+=`<div class="vc" onclick="this.classList.toggle('flip')">
+    <button class="sp" onclick="event.stopPropagation();say('${w[0]}')">🔊</button>
+    <div class="w">${w[0]}</div><div class="ar">${w[1]}</div></div>`;});
+  $('vocScr').innerHTML=h+'</div></div>';window.scrollTo(0,0);
+}
+home();
+</script>
+</body>
+</html>
